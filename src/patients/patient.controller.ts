@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { PatientService } from "./patients.service";
 import { CreatePatientDto } from "./dto/createPatientDto.dto";
 import { JwtAuthGuard } from "src/auth/jwt-auth.guard";
@@ -37,4 +37,10 @@ export class PatientController {
         return this.patientService.getPatients(practiceId);
     }
 
+    @Delete(":id")
+    async deletePatient(@Req() req: CustomRequest, @Param("id") id: string) {
+        const practiceId = req?.user.practiceId;
+        const patientId = parseInt(id, 10);
+        return this.patientService.deletePatient(practiceId, patientId);
+    }
 }

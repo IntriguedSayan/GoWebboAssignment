@@ -53,4 +53,21 @@ export class PatientService {
 
     }
 
+    async deletePatient(practiceId: string, id: number) {
+
+        try {
+            await this.prismaService.setSchema(`${practiceId}`);
+            await this.prismaService.$executeRawUnsafe(`DELETE FROM patient WHERE id = $1`, id)
+            return {
+                message: `Patient with id: ${id} deleted successfully`
+            }
+        } catch (err) {
+            console.log(err);
+            return {
+                message: err.message
+            }
+        }
+
+    }
+
 }
