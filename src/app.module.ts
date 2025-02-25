@@ -5,10 +5,26 @@ import { AuthModule } from './auth/auth.module';
 import { PatientsModule } from './patients/patients.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { EmailModule } from './email/email.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
-  imports: [AuthModule, PatientsModule, PrismaModule, EmailModule],
+  imports: [
+    BullModule.forRoot({
+      redis: {
+        host: process.env.REDIS_HOST || "localhost",
+        port: Number(process.env.REDIS_PORT) as number || 6379,
+        password: process.env.REDIS_PASSWORD
+      }
+    }),
+    BullModule.registerQueue({
+      name: "emailQueue",
+    }),
+    AuthModule,
+    PatientsModule,
+    PrismaModule,
+    EmailModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
