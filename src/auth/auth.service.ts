@@ -51,7 +51,7 @@ export class AuthService {
             } catch (error) {
                 console.error("Error while Signup", error);
                 return {
-                    message: error.messag
+                    message: error.message
                 }
             }
         })
