@@ -16,42 +16,46 @@ export class AuthService {
     ) { }
 
     async signUp(signUp: SignUpDto) {
-        try {
-            const hashedPassword = await argon.hash(signUp.password);
-            const practice = await this.prismaService.practice.create({
-                data: {
-                    name: signUp.name,
-                    email: signUp.email,
-                    password: hashedPassword
+        const prisma = this.prismaService;
+        const transaction = await prisma.$transaction(async (prisma) => {
+            try {
+                const hashedPassword = await argon.hash(signUp.password);
+                const practice = await prisma.practice.create({
+                    data: {
+                        name: signUp.name,
+                        email: signUp.email,
+                        password: hashedPassword
+                    }
+                })
+                if (!practice)
+                    throw new HttpException("Error while creating practice", 500);
+                const tenantSchema = `${practice.id}`;
+                await prisma.$executeRawUnsafe(`CREATE SCHEMA IF NOT EXISTS ${tenantSchema}`);
+
+                await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "${tenantSchema}".patient(
+                    id SERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    age INT NOT NULL,
+                    createdAt TIMESTAMP NOT NULL DEFAULT now()
+    
+                )`)
+
+                await this.emailQueue.add("sendWelcomeEmail", { email: signUp.email, name: signUp.name });
+
+
+                return {
+                    mesaage: "Signup Successfull",
+                    data: practice
                 }
-            })
-            if (!practice)
-                throw new HttpException("Error while creating practice", 500);
-            const tenantSchema = `${practice.id}`;
-            await this.prismaService.$executeRawUnsafe(`CREATE SCHEMA IF NOT EXISTS ${tenantSchema}`);
 
-            await this.prismaService.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "${tenantSchema}".patient(
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                age INT NOT NULL,
-                createdAt TIMESTAMP NOT NULL DEFAULT now()
-
-            )`)
-            console.log("Adding job to the queue");
-            await this.emailQueue.add("sendWelcomeEmail", { email: signUp.email, name: signUp.name });
-            console.log("Job added to the queue");
-
-            return {
-                mesaage: "Signup Successfull",
-                data: practice
+            } catch (error) {
+                console.error("Error while Signup", error);
+                return {
+                    message: error.messag
+                }
             }
-
-        } catch (error) {
-            console.error("Error while Signup", error);
-            return {
-                message: error.messag
-            }
-        }
+        })
+        return transaction;
     }
     async login(login: LoginDto) {
         try {

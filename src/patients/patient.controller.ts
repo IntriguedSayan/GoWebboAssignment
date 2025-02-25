@@ -11,7 +11,7 @@ export interface CustomRequest extends Request {
     user: User;
 }
 
-@Controller("/api/v1/patients")
+@Controller("patients")
 @UseGuards(JwtAuthGuard)
 
 export class PatientController {
