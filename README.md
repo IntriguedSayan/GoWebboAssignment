@@ -5,7 +5,8 @@
 # clone the repository
 $ git clone https://github.com/IntriguedSayan/GoWebboAssignment.git
 
-$ create a .env file & copy the environment variables from .env.example file & fill all the required environment variables(all of them are must be filled)
+# Adding environment variables
+$ create a .env file & copy the environment variables from .env.example file & fill all the required environment variables(all of them must be filled before starting the application)
 
 # Installing Dependencies
 $ npm install
