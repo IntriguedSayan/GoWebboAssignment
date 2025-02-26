@@ -6,6 +6,7 @@ import { PatientsModule } from './patients/patients.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { EmailModule } from './email/email.module';
 import { BullModule } from '@nestjs/bull';
+import { PracticesModule } from './practices/practices.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { BullModule } from '@nestjs/bull';
     AuthModule,
     PatientsModule,
     PrismaModule,
-    EmailModule
+    EmailModule,
+    PracticesModule
   ],
   controllers: [AppController],
   providers: [AppService],
